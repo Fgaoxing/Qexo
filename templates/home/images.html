@@ -1,17 +1,22 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} {% if search %}搜索图片: {{ search }}{% else %}全部图片
-{% endif %} {% endblock title %}
-
+{% block title %}
+    {% if search %}{{ "SEARCH_IMAGE" | gettext }}:{{ search }}{% else %}
+        {{ "IMAGE_LABEL" | gettext }}{% endif %}
+{% endblock title %}
 {% block content %}
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0">
-                        <h6>{% if search %}搜索图片: {{ search }}{% else %}
-                            全部图片{% endif %}
-                            (<span id="post-number">{{ post_number }}</span>张)</h6>
+                        <h6>{% if search %}{{ "SEARCH_IMAGE" | gettext }}:{{ search }}{% else %}
+                            {{ "IMAGE_LABEL" | gettext }}{% endif %}
+                            (<span id="post-number">{{ post_number }}</span>{{ "MEASURE_IMAGE" | gettext }})
+                            <a href="javascript:show_upload()" class="text-primary text-lg">
+                                <i class="fa-solid fa-plus"></i>
+                            </a>
+                        </h6>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
@@ -19,17 +24,20 @@
                                 <thead>
                                 <tr>
                                     <th class="text-secondary text-xxs font-weight-bolder opacity-7">
-                                        <span class="px-1 text-secondary">图片名</span>
+                                        <span class="px-1 text-secondary"
+                                              id="dynamic-gallery">
+                                            {{ "IMAGE_NAME" | gettext }}</span>
                                     </th>
                                     <th class="text-secondary text-xxs font-weight-bolder opacity-7">
-                                        <span class="text-secondary">大小</span>
+                                        <span class="text-secondary">{{ "SIZE" | gettext }}</span>
                                     </th>
                                     <th class="text-secondary text-xxs font-weight-bolder opacity-7">
-                                        <span class="text-secondary">时间</span>
+                                        <span class="text-secondary">{{ "TIME" | gettext }}</span>
                                     </th>
                                     <th class="text-center text-secondary text-xxs
                                     font-weight-bolder opacity-7">
-                                        <span class="text-secondary">操作</span>
+                                        <span class="text-secondary">
+                                            {{ "OPERATION" | gettext }}</span>
                                     </th>
                                 </tr>
                                 </thead>
@@ -44,7 +52,7 @@
                                 <a class="page-link"
                                    href="javascript:prev_page()">
                                     <i class="fas fa-angle-left"></i>
-                                    <span class="sr-only">上一页</span>
+                                    <span class="sr-only">{{ "PREV_PAGE" | gettext }}</span>
                                 </a>
                             </li>
                             {% for i in page_number|get_range %}
@@ -58,7 +66,7 @@
                                 <a class="page-link"
                                    href="javascript:next_page()">
                                     <i class="fas fa-angle-right"></i>
-                                    <span class="sr-only">下一页</span>
+                                    <span class="sr-only">{{ "NEXT_PAGE" | gettext }}</span>
                                 </a>
                             </li>
                         </ul>
@@ -75,7 +83,7 @@
         <div class="modal-dialog">
             <div class="modal-content bg-white">
                 <div class="modal-header" style="border: none;">
-                    <h5 class="modal-title fs-5" id="exampleModalLabel">提示</h5>
+                    <h5 class="modal-title fs-5" id="deleteModalLabel">{{ "TIPS" | gettext }}</h5>
                     <button type="button" data-bs-dismiss="modal"
                             aria-label="Close" style="box-sizing: content-box;width: 1em;height:
                             1em;padding: .25em;color: #8392ab;border: 0;border-radius: .375rem;
@@ -84,14 +92,58 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    确认要删除 <a id="delfile"></a> 吗？此操作不可撤回
+                    {{ "DEL_CONFIRM_1" | gettext }} <a
+                        id="delfile"></a> {{ "DEL_CONFIRM_2" | gettext }}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="checkSync"
+                               checked>
+                        <label class="custom-control-label"
+                               for="checkSync">{{ "DEL_REMOTE" | gettext }}</label>
+                    </div>
                 </div>
                 <div class="modal-footer" style="border: none;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">{{ "CANCEL" | gettext }}
                     </button>
                     <button type="button" class="btn btn-primary" onclick="delete_file()"
-                            data-bs-dismiss="modal">确定
+                            data-bs-dismiss="modal">{{ "CONFIRM" | gettext }}
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="uploadModal" tabindex="-1" aria-labelledby="uploadModalLabel"
+         aria-hidden="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-white">
+                <div class="modal-header" style="border: none;">
+                    <h5 class="modal-title fs-5" id="uploadModalLabel">{{ "UPLOAD" | gettext }}</h5>
+                    <button type="button" data-bs-dismiss="modal"
+                            aria-label="Close" style="box-sizing: content-box;width: 1em;height:
+                            1em;padding: .25em;color: #8392ab;border: 0;border-radius: .375rem;
+                            opacity: .5;background: none">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="imageInput"
+                                   class="form-label">{{ "UPLOAD_TIP" | gettext }}</label>
+                            <input type="file" class="form-control" id="imageInput" name="file">
+                        </div>
+                    </form>
+                    <div id="showurl"></div>
+                </div>
+                <div class="modal-footer" style="border: none;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        {{ "CLOSE" | gettext }}
+                    </button>
+                    <div id="uploadButton">
+                        <button type="button" class="btn btn-primary" onclick="upload_file()">
+                            {{ "UPLOAD" | gettext }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -101,20 +153,32 @@
 
 <!-- Specific JS goes HERE -->
 {% block javascripts %}
+    <link href="{{ cdn_prev }}/fancybox/jquery.fancybox.min.css" rel="stylesheet">
+    <script src="{{ cdn_prev }}/fancybox/jquery.fancybox.min.js"></script>
 
     <script>
+        function displayImage(url) {
+            $.fancybox.open([
+                {
+                    src: url,
+                },
+            ], {
+                loop: false
+            });
+        }
+
         var posts = {{ posts|safe }};
         var _page = 1;
         var del_file;
 
         function change_page(page) {
             scrollToTop();
-            let color = checkIfDark()?"text-white":"text-dark";
+            let color = checkIfDark() ? "text-white" : "text-dark";
             let post_temp = `<tr>
                                 <td>
                                     <div class="d-flex px-4 py-1">
                                         <h6 class="mb-0 text-sm">@@name@@</h6>
-                                        <a href="@@url@@" target="_blank">&nbsp<i class="fa
+                                        <a href="javascript:displayImage('@@url@@')"">&nbsp<i class="fa
                                             fa-external-link-alt text-primary"></i></a>
                                     </div>
                                 </td>
@@ -156,7 +220,7 @@
             } else {
                 $("#prev-page").removeClass("disabled");
             }
-            if (page >={{ page_number }}) {
+            if (page >= {{ page_number }}) {
                 $("#next-page").addClass("disabled");
             } else {
                 $("#next-page").removeClass("disabled");
@@ -167,15 +231,15 @@
             if (_page > 1) {
                 change_page(_page - 1);
             } else {
-                notyf.error("已是第一页");
+                notyf.error("{{ "NO_PREV_PAGE" | gettext }}");
             }
         }
 
         function next_page() {
-            if (_page <{{ page_number }}) {
+            if (_page < {{ page_number }}) {
                 change_page(_page + 1);
             } else {
-                notyf.error("已是最后一页");
+                notyf.error("{{ "NO_NEXT_PAGE" | gettext }}");
             }
         }
 
@@ -194,17 +258,17 @@
 
 
         function delete_file() {
-            let loading = new KZ_Loading('正在删除中...');
+            let loading = new KZ_Loading('{{ "DELETING" | gettext }}');
             loading.show();
             $.ajax({
                 url: '/api/delete_img/',
                 method: 'post',
-                data: {"image": del_file},
+                data: {"image": del_file, "sync": $("#checkSync").prop('checked')},
                 dataType: 'JSON',
                 success: function (res) {
                     loading.destroy();
                     if (res.status) {
-                        notyf.success('删除成功！');
+                        notyf.success(escapeString(res.msg));
                         for (let i = 0; i < posts.length; i++) {
                             if (posts[i]["time"] === del_file) {
                                 posts.splice(i, 1);
@@ -219,21 +283,163 @@
                 },
                 error: function (res) {
                     loading.destroy();
-                    notyf.error("网络错误！");
+                    notyf.error("{{ "NETWORK_ERROR" | gettext }}");
                 }
             })
         }
 
-        function excerpt_by_local(content, length) {
-            let excerpt = content.replace(/<img[^>]*>/g, "");
-            excerpt = excerpt.replace(/<iframe[^>]*>/g, "");
-            excerpt = excerpt.replace(/<script[^>]*>/g, "");
-            excerpt = excerpt.replace(/<style[^>]*>/g, "");
-            excerpt = excerpt.replace(/<[^>]*>/g, "");
-            excerpt = excerpt.replace(/\n/g, " ");
-            return excerpt.substring(0, length) + (content.length > length ? "..." : "");
+        function DrawImage(ImgD, FitWidth, FitHeight) {
+            let image = new Image();
+            image.src = ImgD.src;
+            if (image.width > 0 && image.height > 0) {
+                if (image.width <= 260 && image.height <= 260) {
+                    return;
+                }
+                if (image.width / image.height >= FitWidth / FitHeight) {
+                    if (image.width > FitWidth) {
+                        ImgD.width = FitWidth;
+                        ImgD.height = (image.height * FitWidth) / image.width;
+                    } else {
+                        ImgD.width = image.width;
+                        ImgD.height = image.height;
+                    }
+                } else {
+                    if (image.height > FitHeight) {
+                        ImgD.height = FitHeight;
+                        ImgD.width = (image.width * FitHeight) / image.height;
+                    } else {
+                        ImgD.width = image.width;
+                        ImgD.height = image.height;
+                    }
+                }
+            }
         }
 
 
+        function show_upload() {
+            $("#showurl").html("");
+            $("#uploadModal").modal("show");
+        }
+
+        function upload_file() {
+            let formData = new FormData($("#uploadForm")[0]);
+            $("#uploadButton").html("<button class=\"btn btn-white\" disabled>······</button>");
+            $.ajax({
+                url: '/api/upload/',
+                method: 'post',
+                data: formData,
+                dataType: 'JSON',
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    if (res.status) {
+                        // Style From SMMS
+                        let showImage = `<div id="navTabContent" class="tab-content" style="border:none;">
+                                <div class="tab-pane fade show active" id="imagedetail" role="tabpanel" aria-labelledby="imagedetail-tab">
+                                <fieldset>
+                                    <table style="width:100%;">
+                                        <tbody><tr>
+                                            <td style="width:260px; text-align: center;">
+                                                <a href="${res.data.url}" target="_blank">
+                                                    <img class="lazy" onload="DrawImage(this, 260, 260)" width="260"
+                                                    height="260" src="${res.data.url}"
+                                                    style="max-width: 260px;max-height: 260px;">
+                                                </a>
+                                            </td>
+                                            <td class="padding10" style="text-align:left">
+                                                <div class="dlinput_container">
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <label class="form-control-label" style="margin-bottom:0">HTML</label>
+                                                            <input class="form-control"
+                                                            type="text" onclick="this.select();"
+                                                            value='<a href="${res.data.url}"><img
+                                                            src="${res.data.url}"></a>'>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="dlinput_container">
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <label class="form-control-label"  style="margin-bottom:0">BBCode</label>
+                                                            <input class="form-control" type="text" onclick="this.select();" value="[url=${res.data.url}][img]${res.data.url}[/img][/url]">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="dlinput_container">
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <label class="form-control-label" style="margin-bottom:0">Markdown</label>
+                                                            <input class="form-control"
+                                                            type="text" onclick="this.select();" value="![${res.data.name}](${res.data.url})">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="dlinput_container">
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <label class="form-control-label" style="margin-bottom:0">Link only</label>
+                                                            <input class="form-control" type="text" onclick="this.select();" value="${res.data.url}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr></tbody>
+                                    </table>
+                                </fieldset>
+                                </div>
+                            </div>`
+                        $("#showurl").html(showImage);
+                        notyf.success(escapeString(res.msg));
+                        posts.unshift(res.data);
+                        $("#post-number").html(posts.length);
+                        change_page(_page);
+                        $("#uploadButton").html(`<button type="button" class="btn btn-primary" onclick="upload_file()" >{{ "UPLOAD" | gettext }}</button>`);
+                    } else {
+                        notyf.error(res.msg);
+                        $("#uploadButton").html(`<button type="button" class="btn btn-primary" onclick="upload_file()" >{{ "UPLOAD" | gettext }}</button>`);
+                    }
+                },
+                error: function (res) {
+                    notyf.error("{{ "NETWORK_ERROR" | gettext }}");
+                    $("#uploadButton").html(`<button type="button" class="btn btn-primary" onclick="upload_file()" >{{ "UPLOAD" | gettext }}</button>`);
+                }
+            })
+        }
     </script>
+
+    {% block stylesheets %}
+        <style>
+            @media (max-width: 992px) {
+                .tab-pane td {
+                    display: block;
+                    margin: 0 auto;
+                }
+            }
+
+            .padding10 {
+                padding-left: 0;
+            }
+
+            .padding10 {
+                padding-left: 10px;
+            }
+
+            @media (max-width: 768px) {
+                table td {
+                    white-space: nowrap !important;
+                }
+            }
+
+            fieldset {
+                border: 1px solid #d2d6da;
+                border-radius: 10px;
+                padding: 15px 20px;
+            }
+
+            .dark-version fieldset {
+                border: 1px solid #8392ab;
+            }
+        </style>
+    {% endblock stylesheets %}
 {% endblock javascripts %}

@@ -1,0 +1,42 @@
+name: Test Docker
+
+on:
+  workflow_dispatch:
+    inputs:
+      architecture:
+        description: "Input the architecture to build (e.g., linux/amd64)"
+        required: true
+        default: "linux/amd64"
+
+env:
+  APP_NAME: qexo
+  DOCKERHUB_REPO: abudulin/qexo
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Update QEMU
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes -c yes
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: ${{ github.event.inputs.architecture }}
+          push: false
+          build-args: |
+            APP_NAME=${{ env.APP_NAME }}
+          tags: |
+            ${{ env.DOCKERHUB_REPO }}:testing

@@ -1,7 +1,9 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} {% if search %}搜索文章: {{ search }}{% else %}全部文章
-{% endif %} {% endblock title %}
+{% block title %}
+    {% if search %}{{ "SEARCH_POST" | gettext }}: {{ search }}{% else %}
+        {{ "POST_LABEL" | gettext }}{% endif %}
+{% endblock title %}
 
 {% block content %}
     <div class="container-fluid py-4">
@@ -9,10 +11,10 @@
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0">
-                        <h6>{% if search %}搜索文章: {{ search }}{% else %}
-                            全部文章{% endif %}
-                            (<span id="post-number">{{ post_number }}</span>篇)
-                            <a href="/new.html" class="text-primary text-lg">
+                        <h6>{% if search %}{{ "SEARCH_POST" | gettext }}: {{ search }}{% else %}
+                            {{ "POST_LABEL" | gettext }}{% endif %}
+                            (<span id="post-number">{{ post_number }}</span>{{ "MEASURE_POST" | gettext }})
+                            <a href="javascript:query_new()" class="text-primary text-lg">
                                 <i class="fa-solid fa-plus"></i>
                             </a>
                         </h6>
@@ -23,16 +25,18 @@
                                 <thead>
                                 <tr>
                                     <th class="text-secondary text-xxs font-weight-bolder opacity-7">
-                                        <span class="px-1 text-secondary">文章名</span>
+                                        <span class="px-1 text-secondary">
+                                            {{ "POST_NAME" | gettext }}</span>
                                     </th>
                                     <th class="text-secondary text-xxs font-weight-bolder opacity-7">
-                                        <span class="text-secondary">大小</span>
+                                        <span class="text-secondary">{{ "SIZE" | gettext }}</span>
                                     </th>
                                     <th class="text-center text-secondary text-xxs font-weight-bolder opacity-7">
-                                        <span class="text-secondary">状态</span>
+                                        <span class="text-secondary">{{ "STATUS" | gettext }}</span>
                                     </th>
                                     <th class="text-secondary text-xxs font-weight-bolder opacity-7">
-                                        <span class="text-secondary">操作</span>
+                                        <span class="text-secondary">
+                                            {{ "OPERATION" | gettext }}</span>
                                     </th>
                                 </tr>
                                 </thead>
@@ -47,7 +51,7 @@
                                 <a class="page-link"
                                    href="javascript:prev_page()">
                                     <i class="fas fa-angle-left"></i>
-                                    <span class="sr-only">上一页</span>
+                                    <span class="sr-only">{{ "PREV_PAGE" | gettext }}</span>
                                 </a>
                             </li>
                             {% for i in page_number|get_range %}
@@ -61,7 +65,7 @@
                                 <a class="page-link"
                                    href="javascript:next_page()">
                                     <i class="fas fa-angle-right"></i>
-                                    <span class="sr-only">下一页</span>
+                                    <span class="sr-only">{{ "NEXT_PAGE" | gettext }}</span>
                                 </a>
                             </li>
                         </ul>
@@ -78,7 +82,7 @@
         <div class="modal-dialog">
             <div class="modal-content bg-white">
                 <div class="modal-header" style="border: none;">
-                    <h5 class="modal-title fs-5" id="deleteModalLabel">提示</h5>
+                    <h5 class="modal-title fs-5" id="deleteModalLabel">{{ "TIPS" | gettext }}</h5>
                     <button type="button" data-bs-dismiss="modal"
                             aria-label="Close" style="box-sizing: content-box;width: 1em;height:
                             1em;padding: .25em;color: #8392ab;border: 0;border-radius: .375rem;
@@ -87,13 +91,15 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    确认要删除 <a id="delfile"></a> 吗？此操作不可撤回
+                    {{ "DEL_CONFIRM_1" | gettext }} <a
+                        id="delfile"></a> {{ "DEL_CONFIRM_2" | gettext }}
                 </div>
                 <div class="modal-footer" style="border: none;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">{{ "CANCEL" | gettext }}
                     </button>
                     <button type="button" class="btn btn-primary" onclick="delete_file()"
-                            data-bs-dismiss="modal">确定
+                            data-bs-dismiss="modal">{{ "CONFIRM" | gettext }}
                     </button>
                 </div>
             </div>
@@ -104,7 +110,7 @@
         <div class="modal-dialog">
             <div class="modal-content bg-white">
                 <div class="modal-header" style="border: none;">
-                    <h5 class="modal-title fs-5" id="renameModalLabel">重命名</h5>
+                    <h5 class="modal-title fs-5" id="renameModalLabel">{{ "RENAME" | gettext }}</h5>
                     <button type="button" data-bs-dismiss="modal"
                             aria-label="Close" style="box-sizing: content-box;width: 1em;height:
                             1em;padding: .25em;color: #8392ab;border: 0;border-radius: .375rem;
@@ -113,16 +119,106 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group"><label class="form-control-label">新名称</label><input
+                    <div class="form-group"><label class="form-control-label">
+                        {{ "NEW_NAME" | gettext }}</label><input
                             type="text" name="name" id="edit-name" value=""
                             class="form-control bg-white text-dark">
                     </div>
                 </div>
                 <div class="modal-footer" style="border: none;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">{{ "CANCEL" | gettext }}
                     </button>
                     <button type="button" class="btn btn-primary" onclick="rename_file()"
-                            data-bs-dismiss="modal">确定
+                            data-bs-dismiss="modal">{{ "CONFIRM" | gettext }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="newModal" tabindex="-1" aria-labelledby="newModalLabel"
+         aria-hidden="false">
+        <div class="modal-dialog">
+            <div class="modal-content bg-white">
+                <div class="modal-header" style="border: none;">
+                    <h5 class="modal-title fs-5" id="newModalLabel">{{ "NEW" | gettext }}</h5>
+                    <button type="button" data-bs-dismiss="modal"
+                            aria-label="Close" style="box-sizing: content-box;width: 1em;height:
+                            1em;padding: .25em;color: #8392ab;border: 0;border-radius: .375rem;
+                            opacity: .5;background: none">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group"><label class="form-control-label">
+                        {{ "filename" | gettext }}</label><input
+                            type="text" name="name" id="file-path" value=""
+                            placeholder="{{ "NEW_PH" | gettext }} {{ new_dir }}"
+                            class="form-control bg-white text-dark">
+                    </div>
+                </div>
+                <div class="modal-footer" style="border: none;">
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">{{ "CANCEL" | gettext }}
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="new_file()"
+                            data-bs-dismiss="modal">{{ "CONFIRM" | gettext }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="publishModal" tabindex="-1" aria-labelledby="publishModalLabel"
+         aria-hidden="false">
+        <div class="modal-dialog">
+            <div class="modal-content bg-white">
+                <div class="modal-header" style="border: none;">
+                    <h5 class="modal-title fs-5" id="publishModalLabel">{{ "TIPS" | gettext }}</h5>
+                    <button type="button" data-bs-dismiss="modal"
+                            aria-label="Close" style="box-sizing: content-box;width: 1em;height:
+                            1em;padding: .25em;color: #8392ab;border: 0;border-radius: .375rem;
+                            opacity: .5;background: none">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{ "PUBLISH_CONFIRM_1" | gettext }} <a
+                        id="publish-file"></a> {{ "PUBLISH_CONFIRM_2" | gettext }}
+                </div>
+                <div class="modal-footer" style="border: none;">
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">{{ "CANCEL" | gettext }}
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="publish_file()"
+                            data-bs-dismiss="modal">{{ "CONFIRM" | gettext }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="unpublishModal" tabindex="-1" aria-labelledby="unpublishModalLabel"
+         aria-hidden="false">
+        <div class="modal-dialog">
+            <div class="modal-content bg-white">
+                <div class="modal-header" style="border: none;">
+                    <h5 class="modal-title fs-5" id="unpublishModalLabel">{{ "TIPS" | gettext }}</h5>
+                    <button type="button" data-bs-dismiss="modal"
+                            aria-label="Close" style="box-sizing: content-box;width: 1em;height:
+                            1em;padding: .25em;color: #8392ab;border: 0;border-radius: .375rem;
+                            opacity: .5;background: none">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{ "UNPUBLISH_CONFIRM_1" | gettext }} <a
+                        id="unpublish-file"></a> {{ "UNPUBLISH_CONFIRM_2" | gettext }}
+                </div>
+                <div class="modal-footer" style="border: none;">
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">{{ "CANCEL" | gettext }}
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="unpublish_file()"
+                            data-bs-dismiss="modal">{{ "CONFIRM" | gettext }}
                     </button>
                 </div>
             </div>
@@ -161,7 +257,7 @@
                                     <a href="javascript:query_rename('@@path@@')"><i class="fa-solid fa-file
                                     me-2 text-primary text-xxs"></i></a>| <a
                                     href="javascript:query_delete('@@path@@')"><i class="fa
-                                    fa-trash-alt me-2 text-primary text-xxs"></i></a>
+                                    fa-trash-alt me-2 text-primary text-xxs"></i></a>| @@publish-button@@
                                 </td>
                             </tr>`;
             let page_posts;
@@ -173,13 +269,16 @@
             let list = "";
             for (let i = 0; i < page_posts.length; i++) {
                 let status = page_posts[i].status ? `<span class="badge badge-sm
-                bg-gradient-success">发布</span>` : `<span class="badge badge-sm
-                bg-gradient-secondary">草稿</span>`;
-                list += post_temp.replaceAll("@@name@@", excerpt_by_local(page_posts[i].name, 50))
-                    .replaceAll("@@size@@", page_posts[i].size)
+                bg-gradient-success">{{ "PUBLISHED" | gettext }}</span>` : `<span class="badge 
+                badge-sm
+                bg-gradient-secondary">{{ "DRAFT" | gettext }}</span>`;
+                list += post_temp.replaceAll("@@size@@", page_posts[i].size)
                     .replaceAll("@@status@@", status)
+                    .replaceAll("@@publish-button@@", page_posts[i].status ? `<a href="javascript:query_unpublish('@@name@@')"><i class="fa-solid fa-eye-slash me-2 text-primary text-xxs"></i></a>`:`<a href="javascript:query_publish('@@name@@')"><i class="fa-solid fa-upload
+                                    me-2 text-primary text-xxs"></i></a>`)
                     .replaceAll("@@path@@", encodeURIComponent(page_posts[i].path))
-                    .replaceAll("@@fullname@@", encodeURIComponent(page_posts[i].name));
+                    .replaceAll("@@fullname@@", encodeURIComponent(page_posts[i].name))
+                    .replaceAll("@@name@@", excerpt_by_local(page_posts[i].name, 50));
             }
             $("#page-" + _page).removeClass("active");
             $("#page-" + _page).children().removeClass("text-white");
@@ -192,7 +291,7 @@
             } else {
                 $("#prev-page").removeClass("disabled");
             }
-            if (page >={{ page_number }}) {
+            if (page >= {{ page_number }}) {
                 $("#next-page").addClass("disabled");
             } else {
                 $("#next-page").removeClass("disabled");
@@ -203,15 +302,15 @@
             if (_page > 1) {
                 change_page(_page - 1);
             } else {
-                notyf.error("已是第一页");
+                notyf.error("{{ "NO_PREV_PAGE" | gettext }}");
             }
         }
 
         function next_page() {
-            if (_page <{{ page_number }}) {
+            if (_page < {{ page_number }}) {
                 change_page(_page + 1);
             } else {
-                notyf.error("已是最后一页");
+                notyf.error("{{ "NO_NEXT_PAGE" | gettext }}");
             }
         }
 
@@ -229,13 +328,29 @@
 
         function query_rename(name) {
             operate_post = name;
-            $("#renameModalLabel").text("重命名: " + name);
+            $("#renameModalLabel").text("{{ "RENAME" | gettext }}: " + name);
             $("#edit-name").val(name);
             $("#renameModal").modal("show");
         }
+        
+        function query_new() {
+            $("#newModal").modal("show");
+        }
+
+        function query_publish(name) {
+            operate_post = name;
+            $("#publish-file").text(name);
+            $("#publishModal").modal("show");
+        }
+
+        function query_unpublish(name) {
+            operate_post = name;
+            $("#unpublish-file").text(name);
+            $("#unpublishModal").modal("show");
+        }
 
         function delete_file() {
-            let loading = new KZ_Loading('正在删除中...');
+            let loading = new KZ_Loading();
             let file = $("#delfile").text();
             loading.show();
             $.ajax({
@@ -246,7 +361,7 @@
                 success: function (res) {
                     loading.destroy();
                     if (res.status) {
-                        notyf.success('删除成功！');
+                        notyf.success('{{ "DEL_SUCCESS" | gettext }}');
                         for (let i = 0; i < posts.length; i++) {
                             if (escapeString(posts[i]["path"]) === escapeString(file)) {
                                 posts.splice(i, 1);
@@ -261,14 +376,14 @@
                 },
                 error: function (res) {
                     loading.destroy();
-                    notyf.error("网络错误！");
+                    notyf.error("{{ "NETWORK_ERROR" | gettext }}");
                 }
             })
         }
 
         function rename_file() {
-            let loading = new KZ_Loading('正在重命名中...');
-            let new_name= $("#edit-name").val();
+            let loading = new KZ_Loading();
+            let new_name = $("#edit-name").val();
             loading.show();
             $.ajax({
                 url: '/api/rename/',
@@ -278,7 +393,7 @@
                 success: function (res) {
                     loading.destroy();
                     if (res.status) {
-                        notyf.success('操作成功！');
+                        notyf.success("{{ "OPERATION_SUCCESS" | gettext }}");
                         location.reload();
                     } else {
                         notyf.error(res.msg);
@@ -286,19 +401,106 @@
                 },
                 error: function (res) {
                     loading.destroy();
-                    notyf.error("网络错误！");
+                    notyf.error("{{ "NETWORK_ERROR" | gettext }}");
                 }
             })
         }
 
-        function excerpt_by_local(content, length) {
-            let excerpt = content.replace(/<img[^>]*>/g, "");
-            excerpt = excerpt.replace(/<iframe[^>]*>/g, "");
-            excerpt = excerpt.replace(/<script[^>]*>/g, "");
-            excerpt = excerpt.replace(/<style[^>]*>/g, "");
-            excerpt = excerpt.replace(/<[^>]*>/g, "");
-            excerpt = excerpt.replace(/\n/g, " ");
-            return excerpt.substring(0, length) + (content.length > length ? "..." : "");
+        function new_file() {
+            let loading = new KZ_Loading();
+            let new_name = $("#file-path").val();
+            if (new_name === "") {
+                notyf.error("{{ "NO_POST_NAME" | gettext }}");
+                return;
+            }
+            for (let i = 0; i < posts.length; i++) {
+                if (posts[i].name === new_name) {
+                    notyf.error("{{ "POST_EXIST" | gettext }}");
+                    return;
+                }
+            }
+            loading.show();
+            $.ajax({
+                url: '/api/new_post/',
+                method: 'post',
+                data: {"file": new_name},
+                dataType: 'JSON',
+                success: function (res) {
+                    loading.destroy();
+                    if (res.status) {
+                        notyf.success(res.msg);
+                        setTimeout(window.location.href = "edit.html?file=" +
+                            encodeURIComponent(res.path) + "&postname=" + 
+                            encodeURIComponent(new_name), 100);
+                    } else {
+                        notyf.error(res.msg);
+                    }
+                },
+                error: function (res) {
+                    loading.destroy();
+                    notyf.error("{{ "NETWORK_ERROR" | gettext }}");
+                }
+            })
+        }
+
+        function publish_file() {
+            let loading = new KZ_Loading();
+            loading.show();
+            $.ajax({
+                url: '/api/publish/',
+                method: 'post',
+                data: {"file": operate_post},
+                dataType: 'JSON',
+                success: function (res) {
+                    loading.destroy();
+                    if (res.status) {
+                        notyf.success(res.msg);
+                        for (let i = 0; i < posts.length; i++) {
+                            if (escapeString(posts[i]["name"]) === escapeString(operate_post)) {
+                                posts[i].status = true;
+                                break;
+                            }
+                        }
+                        change_page(_page);
+                    } else {
+                        notyf.error(res.msg);
+                    }
+                },
+                error: function (res) {
+                    loading.destroy();
+                    notyf.error("{{ "NETWORK_ERROR" | gettext }}");
+                }
+            })
+        }
+
+        function unpublish_file() {
+            let loading = new KZ_Loading();
+            loading.show();
+            $.ajax({
+                url: '/api/unpublish/',
+                method: 'post',
+                data: {"file": operate_post},
+                dataType: 'JSON',
+                success: function (res) {
+                    loading.destroy();
+                    if (res.status) {
+                        notyf.success(res.msg);
+                        for (let i = 0; i < posts.length; i++) {
+                            if (escapeString(posts[i]["name"]) === escapeString(operate_post)) {
+                                posts[i].status = false;
+                                break;
+                            }
+                        }
+                        change_page(_page);
+                    } else {
+                        notyf.error(res.msg);
+                    }
+                },
+                error: function (res) {
+                    loading.destroy();
+                    notyf.error("{{ "NETWORK_ERROR" | gettext }}");
+                }
+            })
         }
 
 
