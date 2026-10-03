@@ -10,7 +10,31 @@ env:
   DOCKERHUB_REPO: abudulin/qexo
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Use test config
+        run: cp configs.example.py configs.py
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: python manage.py test hexoweb --verbosity=2
+
   docker:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       -
@@ -32,6 +56,19 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to CNB Cool Registry
+        uses: docker/login-action@v3
+        with:
+          registry: docker.cnb.cool
+          username: cnb
+          password: ${{ secrets.CNB_PASSWORD }}
+      -
         name: Generate App Version
         run: echo APP_VERSION=`git describe --tags --always` >> $GITHUB_ENV
       -
@@ -43,14 +80,18 @@ jobs:
             linux/386
             linux/amd64
             linux/arm64
-            linux/ppc64le
-            linux/s390x
-            linux/arm/v6
-            linux/arm/v7
+#            linux/arm/v6
+#            linux/arm/v7
+#            linux/ppc64le
+#            linux/s390x  # wtf is this?
           push: true
           build-args: |
             APP_NAME=${{ env.APP_NAME }}
             APP_VERSION=${{ env.APP_VERSION }}
           tags: |
             ${{ env.DOCKERHUB_REPO }}:latest
+            ghcr.io/qexo/qexo:latest
+            docker.cnb.cool/qexo/qexo:latest
             ${{ env.DOCKERHUB_REPO }}:${{ env.APP_VERSION }}
+            ghcr.io/qexo/qexo:${{ env.APP_VERSION }}
+            docker.cnb.cool/qexo/qexo:${{ env.APP_VERSION }}
